@@ -9,8 +9,12 @@ package ri.trabri;
  *
  * @author nicolas
  */
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -31,15 +35,48 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-
-
 public class HelloLucene {
+
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
+        //tester();
+        BufferedReader br = new BufferedReader(new FileReader("/home/nicolas/Documentos/RI_trab/cfc/cf74"));
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            boolean endOfObject = false;
+            Documento di = null;
+            ArrayList<Documento> docs = new ArrayList<>();
+
+            while (line != null) {
+
+                // quebra a linha em colunas
+                String[] columns = line.split(" ");
+
+                // se começa um novo documento
+                if (columns[0].equals("PN")) {
+                    if (di != null) {
+                        docs.add(di);
+                        System.out.println(docs.get(0).atributos.toString());
+                        break;
+                    }
+                    di = new Documento();
+                }
+
+                di.atributos.put(columns[0], utils.tail(columns));
+                line = br.readLine();
+
+            }
+        } finally {
+            br.close();
+        }
+    }
+
+    public static void tester() throws IOException, org.apache.lucene.queryparser.classic.ParseException {
         // 0. Specify the analyzer for tokenizing text.
         //    The same analyzer should be used for indexing and searching
         StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
 
-        
         // 1. create the index
         Directory index = new RAMDirectory();
 
@@ -53,11 +90,11 @@ public class HelloLucene {
         w.close();
 
         // 2. query
-        String querystr = args.length > 0 ? args[0] : "computer";
+        String querystr = "computer";
 
         // the "title" arg specifies the default field to use
         // when no field is explicitly specified in the query.
-        Query q = new QueryParser(Version.LUCENE_40,"title", analyzer).parse(querystr);
+        Query q = new QueryParser(Version.LUCENE_40, "title", analyzer).parse(querystr);
 
         // 3. search
         int hitsPerPage = 10;
@@ -68,7 +105,7 @@ public class HelloLucene {
 
         // 4. display results
         System.out.println("Found " + hits.length + " hits.");
-        for(int i=0;i<hits.length;++i) {
+        for (int i = 0; i < hits.length; ++i) {
             int docId = hits[i].doc;
             Document d = searcher.doc(docId);
             System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
