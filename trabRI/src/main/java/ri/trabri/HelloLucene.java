@@ -14,114 +14,79 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
+import java.util.Arrays;
 
 public class HelloLucene {
 
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
         //tester();
-        BufferedReader br = new BufferedReader(new FileReader("/home/nicolas/Documentos/RI_trab/cfc/cf74"));
-        try {
-            StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
+        ArrayList<String> typesGood = new ArrayList<>(Arrays.asList("RN", "AU", "TI", "SO", "MJ", "MN", "AB", "EX"));
+        ArrayList<String> typesBad = new ArrayList<>(Arrays.asList("PN", "AN", "RF", "CT"));
+        
+        ArrayList<Documento> docs = new ArrayList<>();
+        
+        for (int count = 4; count < 10; count++) {
+            BufferedReader br = new BufferedReader(new FileReader("/home/nicolasferranti/Documentos/RI/RI_Lucene/cfc/cf7"+count));
 
-            boolean endOfObject = false;
-            Documento di = null;
-            ArrayList<Documento> docs = new ArrayList<>();
+            try {
+                //int cont = 0;
 
-            while (line != null) {
+                StringBuilder sb = new StringBuilder();
+                String line = br.readLine();
 
-                // quebra a linha em colunas
-                String[] columns = line.split(" ");
+                Documento di = null;
+                
 
-                // se começa um novo documento
-                if (columns[0].equals("PN")) {
-                    if (di != null) {
-                        docs.add(di);
-                        System.out.println(docs.get(0).atributos.toString());
-                        break;
+                boolean util = false;
+                String data = "";
+                String RN = null;
+                while (line != null) {
+
+                    // quebra a linha em colunas
+                    String[] columns = line.split(" ");
+
+                    // se começa um novo documento
+                    if (columns[0].equals("PN")) {
+                        if (di != null) {
+                            di.atributos.put(RN, data);
+                            RN = null;
+                            data = "";
+                            docs.add(di);
+//                            System.out.println(docs.get(cont).atributos.toString());
+//                            if (cont == 2) {
+//                                Lucene.tester(docs);
+//                                break;
+//                            }
+//                            cont++;
+                        }
+
+                        di = new Documento();
                     }
-                    di = new Documento();
+
+                    if (typesGood.contains(columns[0])) {
+                        util = true;
+                        if (columns[0].equals("RN")) {
+                            RN = columns[1];
+                        } else {
+                            data += utils.tail(columns);
+                        }
+                    } else {
+                        if (typesBad.contains(columns[0])) {
+                            util = false;
+                        }
+                        if (util) {
+                            data += utils.tail(columns);
+                        }
+                    }
+
+                    line = br.readLine();
+
                 }
-
-                di.atributos.put(columns[0], utils.tail(columns));
-                line = br.readLine();
-
+            } finally {
+                br.close();
             }
-        } finally {
-            br.close();
         }
+        Lucene.tester(docs);
     }
 
-    public static void tester() throws IOException, org.apache.lucene.queryparser.classic.ParseException {
-        // 0. Specify the analyzer for tokenizing text.
-        //    The same analyzer should be used for indexing and searching
-        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
-
-        // 1. create the index
-        Directory index = new RAMDirectory();
-
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
-
-        IndexWriter w = new IndexWriter(index, config);
-        addDoc(w, "Lucene in Action", "193398817");
-        addDoc(w, "Lucene for Dummies", "55320055Z");
-        addDoc(w, "Managing Gigabytes", "55063554A");
-        addDoc(w, "The Art of Computer Science", "9900333X");
-        w.close();
-
-        // 2. query
-        String querystr = "computer";
-
-        // the "title" arg specifies the default field to use
-        // when no field is explicitly specified in the query.
-        Query q = new QueryParser(Version.LUCENE_40, "title", analyzer).parse(querystr);
-
-        // 3. search
-        int hitsPerPage = 10;
-        IndexReader reader = DirectoryReader.open(index);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        TopDocs docs = searcher.search(q, hitsPerPage);
-        ScoreDoc[] hits = docs.scoreDocs;
-
-        // 4. display results
-        System.out.println("Found " + hits.length + " hits.");
-        for (int i = 0; i < hits.length; ++i) {
-            int docId = hits[i].doc;
-            Document d = searcher.doc(docId);
-            System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
-        }
-
-        // reader can only be closed when there
-        // is no need to access the documents any more.
-        reader.close();
-    }
-
-    private static void addDoc(IndexWriter w, String title, String isbn) throws IOException {
-        Document doc = new Document();
-        doc.add(new TextField("title", title, Field.Store.YES));
-
-        // use a string field for isbn because we don't want it tokenized
-        doc.add(new StringField("isbn", isbn, Field.Store.YES));
-        w.addDocument(doc);
-    }
 }
