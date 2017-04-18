@@ -95,16 +95,16 @@ public class Lucene {
                 System.out.println("String trabalhada :"+ getStemTokens(analyzer,entry.getValue()));
             }
         }
-//        addDoc(w, "Lucene in Action", "193398817");
-//        addDoc(w, "Lucene for Dummies", "55320055Z");
-//        addDoc(w, "Managing Gigabytes", "55063554A");
-//        addDoc(w, "The Art of Computer Science", "9900333X");
+        //        addDoc(w, "Lucene in Action", "193398817");
+        //        addDoc(w, "Lucene for Dummies", "55320055Z");
+        //        addDoc(w, "Managing Gigabytes", "55063554A");
+        //        addDoc(w, "The Art of Computer Science", "9900333X");
         w.close();
 
         // 2. query
         String querystr = "Is CF mucus abnormal";
 
-        // the "title" arg specifies the default field to use
+        // the "data" arg specifies the default field to use
         // when no field is explicitly specified in the query.
         Query q = new QueryParser(Version.LUCENE_40, "data", analyzer).parse(querystr);
 
