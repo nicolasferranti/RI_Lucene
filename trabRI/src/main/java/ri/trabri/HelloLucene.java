@@ -26,7 +26,7 @@ public class HelloLucene {
         ArrayList<Documento> docs = new ArrayList<>();
         
         for (int count = 4; count < 10; count++) {
-            BufferedReader br = new BufferedReader(new FileReader("/home/nicolasferranti/Documentos/RI/RI_Lucene/cfc/cf7"+count));
+            BufferedReader br = new BufferedReader(new FileReader("/home/eduardo/Documentos/trabRI/cf7"+count));
 
             try {
                 //int cont = 0;
@@ -67,6 +67,7 @@ public class HelloLucene {
                         util = true;
                         if (columns[0].equals("RN")) {
                             RN = columns[1];
+                          
                         } else {
                             data += utils.tail(columns);
                         }
