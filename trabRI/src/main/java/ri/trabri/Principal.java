@@ -33,18 +33,18 @@ public class Principal {
         ArrayList<Documento> docs = null;
         
         // Lê o arquivo guardando o id do doc e todos os campos relevantes em um unico atributo
-        /* ABORDAGEM 1 (INDEXA TODAS AS TAGS COMO UMA SÓ)
+        // ABORDAGEM 1 (INDEXA TODAS AS TAGS COMO UMA SÓ)
         docs = getAllTagsTogether(args[0], typesGood);
         LuceneAbordagem1 lc = new LuceneAbordagem1();
         lc.Indexar(docs);
         Consulta cn = readQueries(args[0]);
         ArrayList<String> result = lc.search(cn.query);
         lc.precisionAndRecall(result, cn.relevantDocs);
-        */
+        
         
         // Lê o arquibo guardando os pares de tag e valor dentre os considerados relevantes
-        docs = getTagsByField(args[0], typesGood,types);
-        LuceneAbordagem2.tester(docs);
+        //        docs = getTagsByField(args[0], typesGood,types);
+        //        LuceneAbordagem2.tester(docs);
     }
 
     public static ArrayList<Documento> getTagsByField(String args, ArrayList<String> typesGood, ArrayList<String> types) {

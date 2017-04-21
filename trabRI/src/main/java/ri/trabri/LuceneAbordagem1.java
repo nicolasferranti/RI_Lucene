@@ -6,12 +6,8 @@
 package ri.trabri;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Map;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -19,67 +15,21 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.tartarus.snowball.ext.PorterStemmer;
-
 /**
  *
  * @author nicolasferranti
  */
-public class LuceneAbordagem1 {
+public class LuceneAbordagem1 extends Lucene{
 
-    private StandardAnalyzer analyzer;
-    private Directory index;
-    private IndexWriterConfig config;
-    private IndexWriter w;
-
-    public LuceneAbordagem1() throws IOException {
-        this.analyzer = new StandardAnalyzer(Version.LUCENE_40);
-        // create the index
-        this.index = new RAMDirectory();
-        this.config = new IndexWriterConfig(Version.LUCENE_40, this.analyzer);
-        w = new IndexWriter(index, config);
-    }
-
-    public String stemText(String word) {
-        PorterStemmer stem = new PorterStemmer();
-        stem.setCurrent(word);
-        stem.stem();
-        String result = stem.getCurrent();
-        return result;
-    }
-
-    private ArrayList<String> geraTokens(String text) throws IOException {
-        TokenStream stream = this.analyzer.tokenStream(null, new StringReader(text));
-        ArrayList<String> words = new ArrayList<>();
-
-        CharTermAttribute cattr = stream.addAttribute(CharTermAttribute.class);
-        stream.reset();
-        while (stream.incrementToken()) {
-            //System.out.println(cattr.toString());
-            words.add(cattr.toString());
-        }
-        stream.end();
-        stream.close();
-        return words;
-    }
-
-    public String getStemTokens(String text) throws IOException {
-        ArrayList<String> words = geraTokens(text);
-        String data = "";
-        for (String word : words) {
-            data += stemText(word) + " ";
-        }
-        return data;
+    public LuceneAbordagem1() throws IOException{
+        super();
     }
 
     /*
@@ -103,10 +53,6 @@ public class LuceneAbordagem1 {
         doc.add(new StringField("id", id, Field.Store.YES));
         w.addDocument(doc);
     }
-
-    
-    
-    
     
     public ArrayList<String> search(String querystr) throws IOException, ParseException {
 
