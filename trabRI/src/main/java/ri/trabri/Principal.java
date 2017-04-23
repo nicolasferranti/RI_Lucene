@@ -18,12 +18,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static ri.trabri.LuceneAbordagem2.precisionAndRecall;
 
 public class Principal {
 
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
-        if (args[0] == null) {
-            args[0] = "/home/nicolasferranti/Documentos/RI/RI_Lucene/cfc";
+        if (args.length > 1) {
+            args[0] = "/home/eduardo/Documentos/trabRI/";
         }
 
         // todos os tipos e os tipos mais relevantes 
@@ -31,17 +32,26 @@ public class Principal {
         ArrayList<String> types = new ArrayList<>(Arrays.asList("PN", "AN", "RF", "CT", "RN", "AU", "TI", "SO", "MJ", "MN", "AB", "EX"));
 
         ArrayList<Documento> docs = null;
-        
+
         // Lê o arquivo guardando o id do doc e todos os campos relevantes em um unico atributo
         // ABORDAGEM 1 (INDEXA TODAS AS TAGS COMO UMA SÓ)
-        docs = getAllTagsTogether(args[0], typesGood);
-        LuceneAbordagem1 lc = new LuceneAbordagem1();
+//        docs = getAllTagsTogether(args[0], typesGood);
+//        LuceneAbordagem1 lc = new LuceneAbordagem1();
+//        lc.Indexar(docs);
+//        ArrayList<Consulta> cn = readQueries(args[0]);
+//        for (Consulta c : cn) {
+//            ArrayList<String> result = lc.search(c.query);
+//            lc.precisionAndRecall(result, c.relevantDocs, c.id);
+//        }
+        docs = getTagsByField(args[0], typesGood, types);
+        LuceneAbordagem2 lc = new LuceneAbordagem2();
         lc.Indexar(docs);
-        Consulta cn = readQueries(args[0]);
-        ArrayList<String> result = lc.search(cn.query);
-        lc.precisionAndRecall(result, cn.relevantDocs);
-        
-        
+        ArrayList<Consulta> cn = readQueries(args[0]);
+        for (Consulta c : cn) {
+            ArrayList<String> result = lc.search(c.query);
+            lc.precisionAndRecall(result, c.relevantDocs, c.id);
+        }
+
         // Lê o arquibo guardando os pares de tag e valor dentre os considerados relevantes
         //        docs = getTagsByField(args[0], typesGood,types);
         //        LuceneAbordagem2.tester(docs);
@@ -193,25 +203,54 @@ public class Principal {
         return docs;
     }
 
-    public static Consulta readQueries(String arg) throws FileNotFoundException, IOException{
-        BufferedReader br = new BufferedReader(new FileReader(arg+"/cfquery"));
+    public static ArrayList<Consulta> readQueries(String arg) throws FileNotFoundException, IOException {
+        BufferedReader br = new BufferedReader(new FileReader(arg + "/cfquery"));
         StringBuilder sb = new StringBuilder();
+        ArrayList<Consulta> consultas = new ArrayList<>();
         String id = null;
         String nr = null;
         String line = br.readLine();
         String query = "";
         String docs = "";
-        
-        Consulta cn = new Consulta();
-        
+        ArrayList<String> relevantDocs = new ArrayList<>();
+        Consulta cn = null;
+
         boolean controlRD = false;
         boolean controlQ = false;
-        while (line != null) {
+        int cont = 1;
+
+        do {
 
             String[] columns = line.split(" ");
+
             if (columns.length > 1) {
                 if (columns[0].equals("QN")) {
+                    if (cn != null) {
+                        docs = docs.replaceAll("\\s{2,}", " ");
+                        String[] a = docs.split(" ");
+                        for (int i = 0; i < a.length; ++i) {
+                            if (i % 2 != 0) {
+                                System.out.println(a[i]);
+                                cn.relevantDocs.add(a[i]);
+                            }
+
+                        }
+
+                        query = query.replaceAll("\\?", "").replaceAll("\\/", " ");
+                        cn.query = query;
+                        cn.id = id;
+                        consultas.add(cn);
+                        ++cont;
+                        query = "";
+                        docs = "";
+                        relevantDocs = new ArrayList<>();
+
+                        controlRD = false;
+                        controlQ = false;
+                    }
                     id = utils.tail(columns);
+                    cn = new Consulta();
+
                 }
                 if (columns[0].equals("QU")) {
                     query += utils.tail(columns);
@@ -229,29 +268,29 @@ public class Principal {
                     controlRD = true;
                 } else if ((!columns[0].equals("QN")) && controlRD) {
                     docs += utils.tail(columns);
-                } else if (columns[0].equals("QN") && controlRD) {
-                    //System.out.print(docs);
-                    controlRD = false;
-                    break;
                 }
             }
 
             line = br.readLine();
-        }
+        } while (line != null);
+        if (cn != null) {
+            docs = docs.replaceAll("\\s{2,}", " ");
+            String[] a = docs.split(" ");
+            for (int i = 0; i < a.length; ++i) {
+                if (i % 2 != 0) {
+                    System.out.println(a[i]);
+                    cn.relevantDocs.add(a[i]);
+                }
 
-        docs = docs.replaceAll("\\s{2,}", " ");
-        String[] a = docs.split(" ");
-        for (int i = 0; i < a.length; ++i) {
-            if (i % 2 != 0) {
-                System.out.println(a[i]);
-                cn.relevantDocs.add(a[i]);
             }
 
+            query = query.replaceAll("\\?", "").replaceAll("\\/", " ");
+            cn.query = query;
+            cn.id = id;
+            consultas.add(cn);
         }
-        cn.query = query;
-        return cn;
+        return consultas;
 
-        
         //System.out.println(result);
     }
 }

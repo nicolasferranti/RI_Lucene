@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class Consulta {
     public ArrayList<String> relevantDocs;
     public String query;
+    public String id;
     
     public Consulta(){
         relevantDocs = new ArrayList<>();

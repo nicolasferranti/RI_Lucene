@@ -5,6 +5,7 @@
  */
 package ri.trabri;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.Version;
+import static ri.trabri.LuceneAbordagem2.output;
 /**
  *
  * @author nicolasferranti
@@ -35,6 +37,7 @@ public class LuceneAbordagem1 extends Lucene{
     /*
         Indexa os documentos de acordo com a primeira abordagem da equipe
     */
+    @Override
     public void Indexar(ArrayList<Documento> docums) throws IOException, ParseException {
 
         for (Documento d : docums) {
@@ -54,6 +57,7 @@ public class LuceneAbordagem1 extends Lucene{
         w.addDocument(doc);
     }
     
+    @Override
     public ArrayList<String> search(String querystr) throws IOException, ParseException {
 
         // the "data" arg specifies the default field to use
@@ -81,22 +85,45 @@ public class LuceneAbordagem1 extends Lucene{
 
         for (int i = 0; i < result.size(); ++i) {
             //tira os zeros a esquerda
-            result.set(i, result.get(i).replaceFirst("^0+(?!$)", ""));
+            result.set(i, result.get(i).replaceFirst("^0+(?!$)", "").replace(" ", ""));
         }
 
         return result;
     }
 
-    public void precisionAndRecall(ArrayList<String> result, ArrayList<String> relevantDocs) {
-        int countRelevants = 0;
+    public void precisionAndRecall(ArrayList<String> result, ArrayList<String> relevantDocs, String id) throws IOException {
+         int countRelevants = 0;
+//        for(String s : result)
+//            System.out.println(s);
+//        for(String s : relevantDocs)
+//            System.out.println(s);
         for (int i = 0; i < result.size(); ++i) {
-
             if (relevantDocs.contains(result.get(i))) {
+               
                 ++countRelevants;
             }
 
         }
-        System.out.println("precisao: " + (float) countRelevants / result.size());
-        System.out.println("REcall: " + (float) countRelevants / relevantDocs.size());
+        float precisao = (float) countRelevants / result.size();
+        float recall = (float) countRelevants / relevantDocs.size();
+        float fmeasure = 2 * ((float) (precisao * recall) / (precisao + recall));
+
+        try (FileWriter pw = new FileWriter(output, true)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(id);
+            sb.append(",");
+            sb.append(precisao);
+            sb.append(",");
+            sb.append(recall);
+            sb.append(",");
+            sb.append(fmeasure);
+            sb.append("\n");
+
+            pw.append(sb.toString());
+        }
+
+        System.out.println("precisao: " + precisao);
+        System.out.println("REcall: " + recall);
+        System.out.println("F-measure: " + fmeasure);
     }
 }

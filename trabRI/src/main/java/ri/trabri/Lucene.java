@@ -8,14 +8,9 @@ package ri.trabri;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Map;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -74,9 +69,9 @@ public abstract class Lucene {
         }
         return data;
     }
-    
-    
+
     public abstract void Indexar(ArrayList<Documento> docums) throws IOException, ParseException;
+
     public abstract ArrayList<String> search(String querystr) throws IOException, ParseException;
 
 }
