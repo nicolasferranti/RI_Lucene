@@ -5,7 +5,6 @@
  */
 package ri.trabri;
 
-
 import java.io.FileNotFoundException;
 
 import java.io.FileWriter;
@@ -34,7 +33,6 @@ import org.apache.lucene.search.TopDocs;
 
 import org.apache.lucene.util.Version;
 
-
 /**
  *
  * @author nicolas
@@ -59,6 +57,10 @@ public class LuceneAbordagem2 extends Lucene {
 
     }
 
+    /*
+        Customização da adição de um documento, identificando as tags e alterando
+        o boost de alguns atributos para teste de desempenho
+    */
     private void addDoc(IndexWriter w, Documento d, StandardAnalyzer analyzer) throws IOException {
         Document doc = new Document();
         for (Map.Entry<String, String> entry : d.atributos.entrySet()) {
@@ -94,24 +96,22 @@ public class LuceneAbordagem2 extends Lucene {
                 doc.add(t);
             }
         }
-        /*
-        doc.add(new TextField("data", title, Field.Store.YES));
-
-        // use a string field for id because we don't want it tokenized
-        doc.add(new StringField("id", isbn, Field.Store.YES));*/
 
         w.addDocument(doc);
     }
 
     @Override
+    /*
+        Busca Multicampos implementada limitando o resultado baseado em sua diferença
+        para o primeiro(maior score)
+    */
     public ArrayList<String> search(String querystr) throws IOException, ParseException {
         QueryParser queryParser;
         queryParser = new MultiFieldQueryParser(Version.LUCENE_40, typesGood, analyzer);
 
         Query q = queryParser.parse(querystr);
-//        Query q = new QueryParser(Version.LUCENE_40, "TI", analyzer).parse(querystr);
 
-         int hitsPerPage = 1000;
+        int hitsPerPage = 1000;
         IndexReader reader = DirectoryReader.open(index);
         IndexSearcher searcher = new IndexSearcher(reader);
         TopDocs docs = searcher.search(q, hitsPerPage);
@@ -139,16 +139,12 @@ public class LuceneAbordagem2 extends Lucene {
         return result;
     }
 
-    public static void precisionAndRecall(ArrayList<String> result, ArrayList<String> relevantDocs, String id) throws FileNotFoundException, IOException {
+    public void precisionAndRecall(ArrayList<String> result, ArrayList<String> relevantDocs, String id) throws FileNotFoundException, IOException {
 
         int countRelevants = 0;
-//        for(String s : result)
-//            System.out.println(s);
-//        for(String s : relevantDocs)
-//            System.out.println(s);
         for (int i = 0; i < result.size(); ++i) {
             if (relevantDocs.contains(result.get(i))) {
-              ++countRelevants;
+                ++countRelevants;
             }
 
         }

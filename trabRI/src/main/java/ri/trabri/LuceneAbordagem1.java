@@ -24,19 +24,20 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.Version;
 import static ri.trabri.LuceneAbordagem2.output;
+
 /**
  *
  * @author nicolasferranti
  */
-public class LuceneAbordagem1 extends Lucene{
+public class LuceneAbordagem1 extends Lucene {
 
-    public LuceneAbordagem1() throws IOException{
+    public LuceneAbordagem1() throws IOException {
         super();
     }
 
     /*
         Indexa os documentos de acordo com a primeira abordagem da equipe
-    */
+     */
     @Override
     public void Indexar(ArrayList<Documento> docums) throws IOException, ParseException {
 
@@ -56,7 +57,7 @@ public class LuceneAbordagem1 extends Lucene{
         doc.add(new StringField("id", id, Field.Store.YES));
         w.addDocument(doc);
     }
-    
+
     @Override
     public ArrayList<String> search(String querystr) throws IOException, ParseException {
 
@@ -92,14 +93,10 @@ public class LuceneAbordagem1 extends Lucene{
     }
 
     public void precisionAndRecall(ArrayList<String> result, ArrayList<String> relevantDocs, String id) throws IOException {
-         int countRelevants = 0;
-//        for(String s : result)
-//            System.out.println(s);
-//        for(String s : relevantDocs)
-//            System.out.println(s);
+        int countRelevants = 0;
         for (int i = 0; i < result.size(); ++i) {
             if (relevantDocs.contains(result.get(i))) {
-               
+
                 ++countRelevants;
             }
 

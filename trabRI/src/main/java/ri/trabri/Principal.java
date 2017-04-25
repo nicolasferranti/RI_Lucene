@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static ri.trabri.LuceneAbordagem2.precisionAndRecall;
 
 public class Principal {
 
@@ -35,14 +34,18 @@ public class Principal {
 
         // Lê o arquivo guardando o id do doc e todos os campos relevantes em um unico atributo
         // ABORDAGEM 1 (INDEXA TODAS AS TAGS COMO UMA SÓ)
-//        docs = getAllTagsTogether(args[0], typesGood);
-//        LuceneAbordagem1 lc = new LuceneAbordagem1();
-//        lc.Indexar(docs);
-//        ArrayList<Consulta> cn = readQueries(args[0]);
-//        for (Consulta c : cn) {
-//            ArrayList<String> result = lc.search(c.query);
-//            lc.precisionAndRecall(result, c.relevantDocs, c.id);
-//        }
+        /*
+        docs = getAllTagsTogether(args[0], typesGood);
+        LuceneAbordagem1 lc = new LuceneAbordagem1();
+        lc.Indexar(docs);
+        ArrayList<Consulta> cn = readQueries(args[0]);
+        for (Consulta c : cn) {
+            ArrayList<String> result = lc.search(c.query);
+            lc.precisionAndRecall(result, c.relevantDocs, c.id);
+        }
+        */
+        
+        
         docs = getTagsByField(args[0], typesGood, types);
         LuceneAbordagem2 lc = new LuceneAbordagem2();
         lc.Indexar(docs);
@@ -52,11 +55,15 @@ public class Principal {
             lc.precisionAndRecall(result, c.relevantDocs, c.id);
         }
 
-        // Lê o arquibo guardando os pares de tag e valor dentre os considerados relevantes
+        // Lê o arquivo guardando os pares de tag e valor dentre os considerados relevantes
         //        docs = getTagsByField(args[0], typesGood,types);
         //        LuceneAbordagem2.tester(docs);
     }
 
+    /*
+        Primeira abordagem, lê o arquivo de entrada e monta documento concatenando todos os campos
+        considerados relevantes em um só
+    */
     public static ArrayList<Documento> getTagsByField(String args, ArrayList<String> typesGood, ArrayList<String> types) {
         ArrayList<Documento> docs = new ArrayList<>();
         for (int count = 4; count < 10; count++) {
@@ -130,7 +137,11 @@ public class Principal {
         }
         return docs;
     }
-
+    
+    /*
+        Segunda abordagem, lê o arquivo e cria documentos onde as tags relevantes são
+        armazenadas separadamente
+    */
     public static ArrayList<Documento> getAllTagsTogether(String args, ArrayList<String> typesGood) {
         // args[0] <- pasta onde os arquivos se encontram
 

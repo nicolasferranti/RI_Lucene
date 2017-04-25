@@ -22,6 +22,7 @@ import org.tartarus.snowball.ext.PorterStemmer;
 /**
  *
  * @author nicolas
+ * classe genérica para representar abordagens distintas de indexação
  */
 public abstract class Lucene {
 
@@ -38,6 +39,9 @@ public abstract class Lucene {
         w = new IndexWriter(index, config);
     }
 
+    /*
+        retorna palavra stemizada
+    */
     protected String stemText(String word) {
         PorterStemmer stem = new PorterStemmer();
         stem.setCurrent(word);
@@ -46,6 +50,9 @@ public abstract class Lucene {
         return result;
     }
 
+    /*
+        Cria Tokens a partir de um texto
+    */
     protected ArrayList<String> geraTokens(String text) throws IOException {
         TokenStream stream = this.analyzer.tokenStream(null, new StringReader(text));
         ArrayList<String> words = new ArrayList<>();
@@ -61,6 +68,9 @@ public abstract class Lucene {
         return words;
     }
 
+    /*
+        Pega um texto, gera os tokens e stemiza
+    */
     protected String getStemTokens(String text) throws IOException {
         ArrayList<String> words = geraTokens(text);
         String data = "";
@@ -70,8 +80,10 @@ public abstract class Lucene {
         return data;
     }
 
+    // cada classe deve implementar sua própria forma de indexação
     public abstract void Indexar(ArrayList<Documento> docums) throws IOException, ParseException;
 
+    // sua própria forma de busca
     public abstract ArrayList<String> search(String querystr) throws IOException, ParseException;
 
 }
