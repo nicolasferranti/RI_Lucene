@@ -24,14 +24,15 @@ public class Principal {
 
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
         DataInputStream in = new DataInputStream(System.in);
-
-        if (args.length > 1) {
+        String arguments = null;
+        if (args.length < 1) {
             System.out.println("Digite o caminho da pasta de arquivos :");
-            args[0] = in.readLine();
+            arguments = in.readLine();
+        } else {
+            arguments = args[0];
         }
-        
-        ArrayList<Consulta> cn = readQueries(args[0]);
-                    
+
+        ArrayList<Consulta> cn = readQueries(arguments);
 
         // todos os tipos e os tipos mais relevantes 
         ArrayList<String> typesGood = new ArrayList<>(Arrays.asList("RN", "AU", "TI", "SO", "MJ", "MN", "AB", "EX"));
@@ -51,7 +52,7 @@ public class Principal {
             i = Integer.parseInt(in.readLine());
             switch (i) {
                 case 1:
-                    docs = getTagsByField(args[0], typesGood, types);
+                    docs = getTagsByField(arguments, typesGood, types);
                     LuceneAbordagem2 lc = new LuceneAbordagem2();
                     lc.Indexar(docs);
                     for (Consulta c : cn) {
@@ -60,7 +61,7 @@ public class Principal {
                     }
                     break;
                 case 2:
-                    docs = getAllTagsTogether(args[0], typesGood);
+                    docs = getAllTagsTogether(arguments, typesGood);
                     LuceneAbordagem1 lc1 = new LuceneAbordagem1();
                     lc1.Indexar(docs);
                     for (Consulta c : cn) {
