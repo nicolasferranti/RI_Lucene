@@ -50,7 +50,7 @@ public class LuceneAbordagem2 extends Lucene {
     public void Indexar(ArrayList<Documento> docums) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
 
         for (Documento d : docums) {
-            addDoc(w, d, analyzer);
+            addDoc(w, d);
         }
 
         w.close();
@@ -61,7 +61,7 @@ public class LuceneAbordagem2 extends Lucene {
         Customização da adição de um documento, identificando as tags e alterando
         o boost de alguns atributos para teste de desempenho
     */
-    private void addDoc(IndexWriter w, Documento d, StandardAnalyzer analyzer) throws IOException {
+    private void addDoc(IndexWriter w, Documento d) throws IOException {
         Document doc = new Document();
         for (Map.Entry<String, String> entry : d.atributos.entrySet()) {
 
