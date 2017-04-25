@@ -10,6 +10,7 @@ package ri.trabri;
  * @author nicolas
  */
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,9 +23,15 @@ import java.util.logging.Logger;
 public class Principal {
 
     public static void main(String[] args) throws IOException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
+        DataInputStream in = new DataInputStream(System.in);
+
         if (args.length > 1) {
-            args[0] = "/home/eduardo/Documentos/trabRI/";
+            System.out.println("Digite o caminho da pasta de arquivos :");
+            args[0] = in.readLine();
         }
+        
+        ArrayList<Consulta> cn = readQueries(args[0]);
+                    
 
         // todos os tipos e os tipos mais relevantes 
         ArrayList<String> typesGood = new ArrayList<>(Arrays.asList("RN", "AU", "TI", "SO", "MJ", "MN", "AB", "EX"));
@@ -34,36 +41,46 @@ public class Principal {
 
         // Lê o arquivo guardando o id do doc e todos os campos relevantes em um unico atributo
         // ABORDAGEM 1 (INDEXA TODAS AS TAGS COMO UMA SÓ)
-        /*
-        docs = getAllTagsTogether(args[0], typesGood);
-        LuceneAbordagem1 lc = new LuceneAbordagem1();
-        lc.Indexar(docs);
-        ArrayList<Consulta> cn = readQueries(args[0]);
-        for (Consulta c : cn) {
-            ArrayList<String> result = lc.search(c.query);
-            lc.precisionAndRecall(result, c.relevantDocs, c.id);
-        }
-        */
-        
-        
-        docs = getTagsByField(args[0], typesGood, types);
-        LuceneAbordagem2 lc = new LuceneAbordagem2();
-        lc.Indexar(docs);
-        ArrayList<Consulta> cn = readQueries(args[0]);
-        for (Consulta c : cn) {
-            ArrayList<String> result = lc.search(c.query);
-            lc.precisionAndRecall(result, c.relevantDocs, c.id);
+        System.out.println("Estão pré-cadastradas duas opções de leitura e indexação");
+        System.out.println("Escolha uma opção:");
+        int i = -1;
+        while (i != 0) {
+            System.out.println("(2) Leitura com todas as tags concatenadas e stemização");
+            System.out.println("(1) Leitura com tags separadas, boost e top-n");
+            System.out.println("(0) Sair");
+            i = Integer.parseInt(in.readLine());
+            switch (i) {
+                case 1:
+                    docs = getTagsByField(args[0], typesGood, types);
+                    LuceneAbordagem2 lc = new LuceneAbordagem2();
+                    lc.Indexar(docs);
+                    for (Consulta c : cn) {
+                        ArrayList<String> result = lc.search(c.query);
+                        lc.precisionAndRecall(result, c.relevantDocs, c.id);
+                    }
+                    break;
+                case 2:
+                    docs = getAllTagsTogether(args[0], typesGood);
+                    LuceneAbordagem1 lc1 = new LuceneAbordagem1();
+                    lc1.Indexar(docs);
+                    for (Consulta c : cn) {
+                        ArrayList<String> result = lc1.search(c.query);
+                        lc1.precisionAndRecall(result, c.relevantDocs, c.id);
+                    }
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opção não válida");
+            }
         }
 
-        // Lê o arquivo guardando os pares de tag e valor dentre os considerados relevantes
-        //        docs = getTagsByField(args[0], typesGood,types);
-        //        LuceneAbordagem2.tester(docs);
     }
 
     /*
         Primeira abordagem, lê o arquivo de entrada e monta documento concatenando todos os campos
         considerados relevantes em um só
-    */
+     */
     public static ArrayList<Documento> getTagsByField(String args, ArrayList<String> typesGood, ArrayList<String> types) {
         ArrayList<Documento> docs = new ArrayList<>();
         for (int count = 4; count < 10; count++) {
@@ -137,11 +154,11 @@ public class Principal {
         }
         return docs;
     }
-    
+
     /*
         Segunda abordagem, lê o arquivo e cria documentos onde as tags relevantes são
         armazenadas separadamente
-    */
+     */
     public static ArrayList<Documento> getAllTagsTogether(String args, ArrayList<String> typesGood) {
         // args[0] <- pasta onde os arquivos se encontram
 
